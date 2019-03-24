@@ -26,6 +26,7 @@ Click this option, and in the window that appears, type the following command:
 ```
 Where USERNAME should be replaced by your own username, in my case `jneeven`.
 It should look something like this:
+
 ![init](docs/images/init.jpg)
 This will open your browser and Spotify will ask you to login and give permission for this tool to read and modify your playlists, etc. After you give permission, you will be redirected to http://localhost/?code=SOME_CODE. **Do not close the browser window! Instead, copy the URL from the browser and enter it in the PowerShell window.**
 
