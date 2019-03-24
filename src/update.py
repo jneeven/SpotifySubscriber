@@ -23,5 +23,3 @@ if __name__ == "__main__":
 
     # TODO:
     # - re-create executables
-    # - Create GUI
-    # - Filter out songs that are already in one of the user's own playlists or song library.
