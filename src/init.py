@@ -73,7 +73,8 @@ def main(args):
         """)
 
 
-    print("To get started, subscribe to a few playlists with {}".format(subscribe_executable))
+    print("To get started, subscribe to a few playlists with {}.".format(subscribe_executable))
+    input()
 
 
 if __name__ == "__main__":

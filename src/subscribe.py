@@ -1,4 +1,5 @@
 import argparse
+import sys
 
 from SpotifySubscriber import SpotifySubscriber
 
@@ -14,7 +15,7 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description = 'Subscribe to a ')
+    parser = argparse.ArgumentParser(description = 'Subscribe or unsubscribe to one of your followed playlists.')
     parser.add_argument('playlist', type = str, help = 'Playlist name to subscribe to or unsubscribe from. \
         Partial name also works, for example "discover" will subscribe to discover weekly. Not case sensitive.')
     parser.add_argument('--unsubscribe', action = 'store_true', help = 'Unsubscribe from this playlist.')
