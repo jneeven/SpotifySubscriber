@@ -1,0 +1,1 @@
+schtasks /create /tn "SpotifySubcriber Feed Updater daily" /tr %~dp0\update.exe /sc DAILY /st 18:00:00
