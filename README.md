@@ -9,7 +9,21 @@ The program can be either run from source using Python, or independently using a
 ## <a name="windows_executables"></a> Using the Windows executables
 TODO: provide instructions with images.
 
+Open cmd
+
+run init.exe jneeven
+```
+Creating playlist with name SpotifySubscriber and the following description:
+SpotifySubscriber feed. Whenever one of your subscribed playlists changes, the new songs are added to this list.
+Successfully initialized SpotifySubscriber for username jneeven. To get started, subscribe to a few playlists with subscribe.py and then periodically run update.py.
+```
+run subscribe.exe "NAME"
+run update.exe
+Create windows task
+
 ## Running from source
+Before running anything, you need to install the dependencies. SpotifySubscriber has only two: `numpy` and `spotipy`. Unfortunately, the version of `spotipy` provided by pip is outdated, so it needs to be installed from [source](https://github.com/plamere/spotipy).
+
 To run the source code yourself, you first need to [register a new app in Spotify](https://developer.spotify.com/dashboard/applications).
 
 After doing this, create a file called `client_data.json` in the src folder with the following structure:
@@ -25,7 +39,12 @@ To create a subscription feed, run the following command:
 python src/init.py USERNAME
 ```
 Where USERNAME should be replaced with your own Spotify username. This will open your browser and prompt you to login to the Spotify access terminal. You will then be redirected to a page that cannot be reached (http://localhost/code=?). **You must copy this URL into the terminal from which you executed the script!**
-After entering the URL in the terminal, it should print a message about the subscription feed it has created.
+After entering the URL in the terminal, you should see a message like the following:
+```
+Creating playlist with name SpotifySubscriber and the following description:
+SpotifySubscriber feed. Whenever one of your subscribed playlists changes, the new songs are added to this list.
+Successfully initialized SpotifySubscriber for username jneeven. To get started, subscribe to a few playlists with subscribe.py and then periodically run update.py.
+```
 
 ### Subscribing to and unsubscribing from playlists
 After creating a subscription feed, you can subscribe to a playlist with the following command:
