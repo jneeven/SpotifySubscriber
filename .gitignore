@@ -1,0 +1,15 @@
+**/__pycache__
+
+**/.cache-*
+**/*.p
+**/*.npy
+**/*.spec
+
+**/storage/
+
+**/client_data.json
+
+dist/
+build/
+venv/
+spotipy/
