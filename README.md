@@ -16,26 +16,12 @@ NOTE: Setting up automatic updates currently involves quite some manual labor. I
 ### Downloading the tool and creating a subscription playlist
 - Download [the zip file](https://github.com/jneeven/SpotifySubscriber/raw/master/SpotifySubscriber.zip) and extract it to the location you want to install the tool to.
 - Open the extracted SpotifySubscriber folder.
-- Hold shift and press right click on an empty space in the folder, you should see the option `"Open PowerShell window here"`:
+- Execute `init.exe` as administrator (Administrator permissions are required to update the subscription feed whenever your PC starts up).
+- After entering your Spotify username in the opened terminal, your browser will open and Spotify will ask you to login and give permission for this tool to read and modify your playlists, etc. After you give permission, you will be redirected to http://localhost/?code=SOME_CODE. **Do not close the browser window! Instead, copy the URL from the browser and enter it in the terminal window.** 
+- If everything was successful, you should see something like this:
 
-![powershell](docs/images/open_powershell.png)
+![powershell](docs/images/init.jpg)
 
-Click this option, and in the window that appears, type the following command:
-```bash
-.\init.exe USERNAME
-```
-Where USERNAME should be replaced by your own username, in my case `jneeven`.
-It should look something like this:
-
-![init](docs/images/init.jpg)
-This will open your browser and Spotify will ask you to login and give permission for this tool to read and modify your playlists, etc. After you give permission, you will be redirected to http://localhost/?code=SOME_CODE. **Do not close the browser window! Instead, copy the URL from the browser and enter it in the PowerShell window.**
-
-If everything was successful, you should see the following message:
-```
-Creating playlist with name SpotifySubscriber and the following description:
-SpotifySubscriber feed. Whenever one of your subscribed playlists changes, the new songs are added to this list.
-Successfully initialized SpotifySubscriber for username jneeven. To get started, subscribe to a few playlists with subscribe.py and then periodically run update.py.
-```
 
 If you now open Spotify, you will see that a new playlist was added to your account:
 
@@ -44,8 +30,13 @@ If you now open Spotify, you will see that a new playlist was added to your acco
 This is the playlist to which all new tracks from your subscribed playlists will be added.
 
 ### Subscribe/Unsubscribe to playlists
-To subscribe to a playlist, we again use the PowerShell window. You can subscribe to any playlist you currently follow and do not own yourself (you can also subscribe to collaborative playlists you do own yourself, but the subscription feed won't show the tracks you added to this list yourself).
-Execute the following command:
+To subscribe to a playlist, we have to use the PowerShell window. You can subscribe to any playlist you currently follow and do not own yourself (you can also subscribe to collaborative playlists you do own yourself, but the subscription feed won't show the tracks you added to this list yourself).
+
+In the SpotifySubscriber folder, hold shift and press right click on an empty space in the folder,. You should see the option `"Open PowerShell window here"`:
+
+![powershell](docs/images/open_powershell.png)
+
+Click this option, and in the window that appears, type the following command:
 ```bash
 .\subscribe.exe "PART_OF_PLAYLIST_NAME"
 ```
@@ -61,31 +52,9 @@ To unsubscribe from a playlist, we simply add `--unsubscribe` like this:
 ```
 Which will unsubscribe you from any playlists containing "release".
 
-To now ensure that our subscription feed will be automatically updated, there is one more step we need to take.
 
-### <a name="task_scheduler"></a>(Automatically) updating the subscription feed
-To check your subscribed playlists for new songs since you subscribed to them, you can simply double-click `update.exe` in the SpotifySubcriber folder. However, you don't want to have to do this manually every time. Therefore, it is a good idea to set up a task in the Windows Task Scheduler.
 
-To do so, press windows key + R and type `taskschd.msc` (alternatively, you can open the search menu and search for "Schedule tasks"). This will open the following window:
-
-![scheduler](docs/images/scheduler.jpg)
-
-Press "Create Task...".
-In the window that pops up, enter any name you like:
-![create_task](docs/images/create_task.jpg)
-
-Make sure "Configure for" is set to the windows version you're using.
-
-Press the "Triggers" tab and choose the following options:
-![new_trigger](docs/images/new_trigger.jpg)
-
-This will make sure that your subscription feed is updated every day at 20:14 (as long as your PC is turned on). Feel free to choose a different time or update frequency here.
-
-Finally, open the "Actions" tab and point it to the location you installed SpotifySubscriber in:
-![new_action](docs/images/new_action.jpg)
-
-That's it! Your SpotifySubscriber feed will now be updated every day when one of your subscribed playlists changes. You can add or remove subscriptions any time. 
-
+That's it! Your SpotifySubscriber feed will now be updated every day and every time your pc starts (as long as any of your subscribed playlists have changed). You can add or remove subscriptions any time. 
 
 
 ## <a name="source_code"></a> Running from source
@@ -101,17 +70,24 @@ After doing this, create a file called `client_data.json` in the src folder with
 }
 ```
 
-To create a subscription feed, run the following command:
+To create a subscription feed, run the following command (**as administrator, if you are using Windows***):
 ```bash
-python src/init.py USERNAME
+python src/init.py
 ```
-Where USERNAME should be replaced with your own Spotify username. This will open your browser and prompt you to login to the Spotify access terminal. You will then be redirected to a page that cannot be reached (http://localhost/?code=SOME_CODE). **You must copy this URL into the terminal from which you executed the script!**
+_*The administrator permissions are necessary to update your subscription feed every time your pc starts._
+
+This will prompt you for your Spotify username, open your browser and prompt you to login to the Spotify access terminal. You will then be redirected to a page that cannot be reached (http://localhost/?code=SOME_CODE). **You must copy this URL into the terminal from which you executed the script!**
 After entering the URL in the terminal, you should see a message like the following:
 ```
-Creating playlist with name SpotifySubscriber and the following description:
-SpotifySubscriber feed. Whenever one of your subscribed playlists changes, the new songs are added to this list.
-Successfully initialized SpotifySubscriber for username jneeven. To get started, subscribe to a few playlists with subscribe.py and then periodically run update.py.
+Successfully initialized SpotifySubscriber for username jneeven
+SUCCESS: The scheduled task "SpotifySubcriber Feed Updater daily" has successfully been created.
+SUCCESS: The scheduled task "SpotifySubcriber Feed Updater onstart" has successfully been created.
+Subscription feed will be updated daily at 18:00 (if your PC is on).
+Subscription feed will be updated every time your PC starts.
+To get started, subscribe to a few playlists with subscribe.py.
 ```
+
+If you are on Windows, the subscription feed will be updated automatically every day at 18:00 (if your pc is on) and every time your pc starts. If you are not on Windows, check section [Updating the feed (manually)](#updating_feed).
 
 ### Subscribing to and unsubscribing from playlists
 After creating a subscription feed, you can subscribe to a playlist with the following command:
@@ -124,24 +100,24 @@ python src/subscribe.py "release"
 ``` 
 will subscribe to all followed playlists with 'release' in their name, for example the Release Radar.
 
-
 To unsubscribe from a playlist, simply run the same command with the `--unsubscribe` option:
 ```bash
 python src/subscribe.py --unsubscribe "PART_OF_PLAYLIST_NAME"
 ```
 
-### Updating the feed
-To update the subscription feed (i.e. check for new tracks in your subscribed playlists), simply run the following command:
+### <a name="updating_feed"></a> Updating the feed (manually)
+To update the subscription feed (i.e. check for new tracks in your subscribed playlists) manually, simply run the following command:
 ```bash
 python src/update.py
 ```
 
-Since you don't want to have to do this manually every time, I suggest creating a task for it in the Task Scheduler (Windows) or creating a crontab scheduled task for it (Linux). For more information about scheduling the updater as a Windows task, check [(Automatically) updating the subscription feed](#task_scheduler).
+Since you don't want to have to do this manually every time, the init script has scheduled this to be done every time your pc starts and every day at 18:00 if you are on Windows. If you are not on Windows, you will want to schedule a task for this manually, for example using [crontab](https://vitux.com/scheduling-a-task-on-linux-using-crontab/) (Linux).
+
 
 # Roadmap
 There are many improvements that need to be made:
 - The Windows executables should be tested on different devices.
 - A GUI is necessary, because using three python scripts / executables is cumbersome.
-- Instead of having to schedule the update task manually, the code should register this task itself.
+- init.py should automatically schedule the task on Linux.
 - Before adding new songs to the subscription feed, they should be compared to the feed history such that a song will never appear in the subscription feed twice. Currently, update_feed only filters duplicate tracks within the same update.
 - Extending on the above, the feed could also filter songs that are already in any of the user's playlists or song library.
