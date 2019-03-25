@@ -1,18 +1,16 @@
 # Description
 [WORK IN PROGRESS]
 
-Spotify subscription feed tool. Allows you to subscribe to Spotify playlists, and creates a subscription feed playlist. Whenever any of the subscribed playlists changes, the new songs are added to the subscription feed.
+Spotify subscription feed tool. Allows you to subscribe to Spotify playlists, and creates a subscription feed playlist. Whenever any of the subscribed playlists changes, the new songs are added to the subscription feed. This is not only very convenient, but by keeping track of the songs that you delete from the subscription feed and those that end up in your library, the idea is to eventually train an AI that will automatically suggest new music to you.
 
 The program can be either run from source using Python, or independently using a set of Windows executables (no additional installations required). See the sections below for instructions.
 
-NOTE: There is no GUI yet, so all actions have to be performed using the command line. For the less technical users, detailed descriptions on how to do this have been provided in the next section. If you are familiar with Python, it is probably most convenient to just download and execute the source code directly. Instructions to do so are provided in the section [Running from source](#source_code).
+NOTE: There is no GUI yet, so all actions have to be performed using the command line. For the less technical users, detailed descriptions on how to do this have been provided in the next section. If you are familiar with Python, it is probably most convenient to just download and execute the source code directly, since you can then make changes if you desire. Instructions to do so are provided in the section [Running from source](#source_code).
 
 This tool is in a very early stage, and all contributions are very welcome. Feel free to submit a pull request if you think something can be improved.
 
 # Instructions
 ## <a name="windows_executables"></a> Using the Windows executables
-NOTE: Setting up automatic updates currently involves quite some manual labor. I hope to have the program do this automatically in the future.
-
 ### Downloading the tool and creating a subscription playlist
 - Download [the zip file](https://github.com/jneeven/SpotifySubscriber/raw/master/SpotifySubscriber.zip) and extract it to the location you want to install the tool to.
 - Open the extracted SpotifySubscriber folder.
