@@ -9,3 +9,6 @@ cp dist/subscribe/subscribe.exe dist/SpotifySubscriber
 cp dist/update/update.exe dist/SpotifySubscriber
 
 rm -rf dist/subscribe dist/update
+
+zip -r SpotifySubscriber.zip dist/*
+mv dist/SpotifySubscriber.zip .
