@@ -9,6 +9,9 @@ NOTE: There is no GUI yet, so all actions have to be performed using the command
 
 This tool is in a very early stage, and all contributions are very welcome. Feel free to submit a pull request if you think something can be improved.
 
+_If you are interested in receiving (additional) music suggestions or information on your listening behaviour, I suggest creating an account at https://www.last.fm/ and registering it with Spotify. Last.FM will track what songs you listen to and provide you with an overview of artists, tracks, genres, etc. It also creates a recommendation playlist you can listen to. I'm not too convinced by their recommendations, but their website provides a nice way to obtain listening data. I plan to develop a music recommendation AI in the future, and having this data is a nice starting point. If you would like to stay informed about this AI, follow my GitHub profile. Although it may use information obtained through SpotifySubscriber, I will probably publish it as a separate tool._
+
+
 # Instructions
 ## <a name="windows_executables"></a> Using the Windows executables
 ### Downloading the tool and creating a subscription playlist
