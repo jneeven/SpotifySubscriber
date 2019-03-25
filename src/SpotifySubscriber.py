@@ -52,7 +52,7 @@ class SubscriptionFeed():
     ''' 
 
     default_name = 'SpotifySubscriber'
-    default_description = 'SpotifySubscriber feed. Whenever one of your subscribed playlists changes, the new songs are added to this list.'
+    default_description = 'SpotifySubscriber feed. Whenever one of your subscribed playlists changes, the new songs are added to this list. For more information, visit http://github.com/jneeven/SpotifySubscriber.'
     
     def __init__(self, spotify: Spotify, user_id: str, name: str = default_name, description: str = default_description):
         safe_print("Creating playlist with name {} and the following description:\n\t'{}'".format(name, description))
