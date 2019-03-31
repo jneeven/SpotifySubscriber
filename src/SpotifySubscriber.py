@@ -39,9 +39,9 @@ class SubscribedPlaylist():
 
     def __repr__(self):
         time_stamp = self.subscribe_stamp.strftime('%Y-%m-%dT%H:%M:%SZ')
-        string = "{} by {} - Subscribe stamp: {} - ID: {} - Snapshot: {}".format(
-            self.name.encode('utf-8'), 
-            self.owner_id.encode('utf-8'), 
+        string = "'{}' by {} - Subscribe stamp: {} - ID: {} - Snapshot: {}".format(
+            self.name, 
+            self.owner_id, 
             time_stamp, self.id, self.snapshot_id
         )
         return string
@@ -274,12 +274,12 @@ class SpotifySubscriber():
         if own:
             safe_print("Own playlists:")
             for playlist in self.user_playlists.values():
-                safe_print(playlist['name'].encode('utf-8'))
+                safe_print(playlist['name'])
 
         if follow:
             safe_print("\nFollowed playlists:")
             for playlist in self.followed_playlists.values():
-                safe_print(playlist['name'].encode('utf-8'), playlist['owner']['id'].encode('utf-8'))
+                safe_print(playlist['name'], playlist['owner']['id'])
 
         if subscribed:
             safe_print("\nCurrently subscribed to the following playlists:")
