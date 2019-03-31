@@ -23,12 +23,18 @@ class SubscribedPlaylist():
     '''
     Convert subscribed playlist dictionary into more managable object.
     '''
-    def __init__(self, playlist: dict):
+    def __init__(self, playlist: dict, tracks: list):
         self.name = playlist['name']
         self.id = playlist['id']
         self.owner_id = playlist['owner']['id']
         self.snapshot_id = playlist['snapshot_id']
         self.subscribe_stamp = datetime.utcnow()
+
+        # Store track IDs in dict so we won't think songs are new if they are 
+        # deleted and re-added to the list
+        self.track_ids = {}  
+        for track in tracks:
+            self.track_ids[track['id']] = self.subscribe_stamp
 
 
     def __repr__(self):
@@ -215,7 +221,8 @@ class SpotifySubscriber():
             
             if playlist_id not in self.subscribed_playlists.keys():
                 playlist = self.followed_playlists[playlist_id]
-                self.subscribed_playlists[playlist_id] = SubscribedPlaylist(playlist)
+                tracks, _ = self._get_playlist_tracks(playlist['owner']['id'], playlist_id)
+                self.subscribed_playlists[playlist_id] = SubscribedPlaylist(playlist, tracks)
                 new_subscriptions = True
                 safe_print("Subscribed to playlist {} by {}".format(playlist['name'], playlist['owner']['id']))
         
@@ -224,7 +231,8 @@ class SpotifySubscriber():
             pattern = pattern.lower()
             for playlist in self.followed_playlists.values():
                 if pattern in playlist['name'].lower() and playlist['id'] not in self.subscribed_playlists.keys():
-                    self.subscribed_playlists[playlist['id']] = SubscribedPlaylist(playlist)
+                    tracks, _ = self._get_playlist_tracks(playlist['owner']['id'], playlist['id'])
+                    self.subscribed_playlists[playlist['id']] = SubscribedPlaylist(playlist, tracks)
                     new_subscriptions = True
                     safe_print("Subscribed to playlist {} by {}".format(playlist['name'], playlist['owner']['id']))
 
@@ -297,7 +305,6 @@ class SpotifySubscriber():
             # safe_print("Checking playlist {}".format(playlist.name))
             new_tracks, snapshot = self._get_playlist_tracks(playlist.owner_id, playlist_id, 
                 min_timestamp = last_update,
-                # Snapshot is currently broken, or I don't understand how they work. Doesn't seem to be updated.
                 compare_snapshot = playlist.snapshot_id
             )
             # Update the playlist snapshot so that we quickly know if it has changed next time
@@ -306,8 +313,12 @@ class SpotifySubscriber():
             added = 0
             for track in new_tracks:
                 if add_own or track['added_by'] != self.user_id:
-                    track_ids.append(track['id'])
-                    added += 1
+                    # Only add the track if it wasn't already in the list when we subbed
+                    if track['id'] not in playlist.track_ids.keys():
+                        track_ids.append(track['id'])
+                        # Add the ID to the track ID list so we know not to add it in the future
+                        playlist.track_ids[track['id']] = datetime.utcnow()
+                        added += 1
 
             if added > 0:
                 safe_print("Obtained {} new tracks from playlist {}!".format(added, playlist.name))

@@ -3,6 +3,7 @@ from SpotifySubscriber import SpotifySubscriber
 
 def main():
     spotify = SpotifySubscriber()
+    spotify.refresh_user_playlists()
     spotify.print_feed_log()
 
 

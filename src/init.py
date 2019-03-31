@@ -35,6 +35,7 @@ def schedule_windows_tasks(run_as_exe = False):
 
 def main(args):
     run_as_exe = sys.executable.endswith("init.exe")
+    subscribe_executable = 'subscribe.py'
 
     if args.username == "":
         username = input('Enter your Spotify username: ')
@@ -47,14 +48,9 @@ def main(args):
     current_platform = platform.system()
     if current_platform == 'Windows':
 
-        # If the current code is executed as an executable file
+        # If the current code is executed as an executable file, use update.exe instead of .py
         if run_as_exe:
             subscribe_executable = 'subscribe.exe'  
-
-        # If the current code is executed directly with python
-        else:
-            # TODO: schedule task with python update.py
-            subscribe_executable = 'subscribe.py'
 
         daily, startup = schedule_windows_tasks(run_as_exe)
         if daily:
@@ -63,14 +59,15 @@ def main(args):
         if startup:
             print("Subscription feed will be updated every time your PC starts.")
         else:
-            print("""WARNING: Tried scheduling subscription feed to be updated every time your PC starts, but did not have permission. Try executing this file as administrator.""")
+            print("WARNING: Tried scheduling subscription feed to be updated every " + \
+            "time your PC starts, but did not have permission. Try executing this " + \
+            "file as administrator.")
 
     else:
-        print("""
-        Automatic updates are not implemented yet for your OS. To update your subscription feed automatically, please schedule
-        python update.py
-        With the desired frequency using tools appropriate for your OS (for example crontab).
-        """)
+        print("Automatic updates are not implemented yet for your OS. " + \
+        "To update your subscription feed automatically, please schedule\n" + \
+        "python update.py \n" + \
+        "With the desired frequency using tools appropriate for your OS (for example crontab).")
 
 
     print("To get started, subscribe to a few playlists with {}.".format(subscribe_executable))
