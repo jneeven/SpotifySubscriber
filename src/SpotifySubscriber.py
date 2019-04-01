@@ -66,7 +66,6 @@ class Track():
         self.added_by = track['added_by']['id']
         
 
-
 class SubscriptionFeed():
     '''
     Represents the playlist to which all new songs from the subscribed playlists will be added.
@@ -396,7 +395,7 @@ class SpotifySubscriber():
                 
                 timestamp = datetime.strptime(added_at, '%Y-%m-%dT%H:%M:%SZ')
                 if timestamp > min_timestamp:                   
-                    return_tracks.append(Track(track), playlist_id)
+                    return_tracks.append(Track(track, playlist_id))
                     # safe_print("Found track with name {} and timestamp {} ( > {})".format(track_name, timestamp, min_timestamp))
 
             if tracks['next']:
