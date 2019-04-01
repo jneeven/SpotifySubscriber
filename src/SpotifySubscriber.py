@@ -5,6 +5,7 @@ import time
 import pickle
 import json
 from datetime import datetime
+import itertools
 
 # Note: have built spotipy from source, because the pip version is outdated.
 from spotipy import Spotify
@@ -37,7 +38,7 @@ class SubscribedPlaylist():
         # deleted and re-added to the list
         self.track_ids = {}  
         for track in tracks:
-            self.track_ids[track['id']] = self.subscribe_stamp
+            self.track_ids[track.id] = self.subscribe_stamp
 
 
     def __repr__(self):
@@ -48,6 +49,22 @@ class SubscribedPlaylist():
             time_stamp, self.id, self.snapshot_id
         )
         return string
+
+
+class Track():
+    '''
+    Convert track info dictionary into more managable object.
+    '''
+
+    def __init__(self, track: dict, playlist_id = "-1"):
+        self.name = track['track']['name']
+        self.id = track['track']['id']
+        self.album = track['track']['album']
+        self.artist_dicts = track['track']['artists']
+        self.main_artist_name = self.artist_dicts[0]['name']
+        self.playlist_id = playlist_id
+        self.added_by = track['added_by']['id']
+        
 
 
 class SubscriptionFeed():
@@ -224,7 +241,7 @@ class SpotifySubscriber():
             
             if playlist_id not in self.subscribed_playlists.keys():
                 playlist = self.followed_playlists[playlist_id]
-                tracks, _ = self._get_playlist_tracks(playlist['owner']['id'], playlist_id)
+                tracks = self._get_playlist_tracks(playlist['owner']['id'], playlist_id)
                 self.subscribed_playlists[playlist_id] = SubscribedPlaylist(playlist, tracks)
                 new_subscriptions = True
                 safe_print("Subscribed to playlist {} by {}".format(playlist['name'], playlist['owner']['id']))
@@ -234,7 +251,7 @@ class SpotifySubscriber():
             pattern = pattern.lower()
             for playlist in self.followed_playlists.values():
                 if pattern in playlist['name'].lower() and playlist['id'] not in self.subscribed_playlists.keys():
-                    tracks, _ = self._get_playlist_tracks(playlist['owner']['id'], playlist['id'])
+                    tracks = self._get_playlist_tracks(playlist['owner']['id'], playlist['id'])
                     self.subscribed_playlists[playlist['id']] = SubscribedPlaylist(playlist, tracks)
                     new_subscriptions = True
                     safe_print("Subscribed to playlist {} by {}".format(playlist['name'], playlist['owner']['id']))
@@ -308,19 +325,27 @@ class SpotifySubscriber():
             # safe_print("Checking playlist {}".format(playlist.name))
             new_tracks, snapshot = self._get_playlist_tracks(playlist.owner_id, playlist_id, 
                 min_timestamp = last_update,
-                compare_snapshot = playlist.snapshot_id
+                compare_snapshot = playlist.snapshot_id,
+                return_snapshot = True
             )
             # Update the playlist snapshot so that we quickly know if it has changed next time
             playlist.snapshot_id = snapshot
 
             added = 0
             for track in new_tracks:
-                if add_own or track['added_by'] != self.user_id:
-                    # Only add the track if it wasn't already in the list when we subbed
-                    if track['id'] not in playlist.track_ids.keys():
-                        track_ids.append(track['id'])
-                        # Add the ID to the track ID list so we know not to add it in the future
-                        playlist.track_ids[track['id']] = datetime.utcnow()
+                if add_own or track.added_by != self.user_id:
+                    try:
+                        # Only add the track if it wasn't already in the list when we subbed
+                        if track.id not in playlist.track_ids.keys():
+                            track_ids.append(track.id)
+                            # Add the ID to the track ID list so we know not to add it in the future
+                            playlist.track_ids[track.id] = datetime.utcnow()
+                            added += 1
+                    # TODO: correctly upgrade objects if storage consists of SubscribedPlaylists without ID list.
+                    except AttributeError:
+                        track_ids.append(track.id)
+                        # # Add the ID to the track ID list so we know not to add it in the future
+                        # playlist.track_ids[track.id] = datetime.utcnow()
                         added += 1
 
             if added > 0:
@@ -350,7 +375,8 @@ class SpotifySubscriber():
 
     # Get all tracks in the specified playlist, added after min_timestamp. 
     # If snapshot is provided, ignore playlists of which the snapshot hasn't changed.
-    def _get_playlist_tracks(self, playlist_owner_id: str, playlist_id: str, min_timestamp: datetime = None, compare_snapshot: str = None):
+    def _get_playlist_tracks(self, playlist_owner_id: str, playlist_id: str, 
+            min_timestamp: datetime = None, compare_snapshot: str = None, return_snapshot = False):
         data = self.sp.user_playlist(playlist_owner_id, playlist_id, fields = "tracks, snapshot_id")
 
         return_tracks = []
@@ -367,32 +393,62 @@ class SpotifySubscriber():
         while tracks:
             for track in tracks['items']:
                 added_at = track['added_at']
-                added_by = track['added_by']['id']
-
+                
                 timestamp = datetime.strptime(added_at, '%Y-%m-%dT%H:%M:%SZ')
-                if timestamp > min_timestamp:
-                    track_name = track['track']['name']
-                    album = track['track']['album']
-                    artist_dicts = track['track']['artists']
-                    main_artist_name = artist_dicts[0]['name']
-                    track_id = track['track']['id']
-
-                    return_tracks.append({
-                        'name': track_name,
-                        'id': track_id,
-                        'main_artist_name': main_artist_name,
-                        'added_by': added_by
-                    })
-
+                if timestamp > min_timestamp:                   
+                    return_tracks.append(Track(track), playlist_id)
                     # safe_print("Found track with name {} and timestamp {} ( > {})".format(track_name, timestamp, min_timestamp))
 
-            
             if tracks['next']:
                 tracks = self.sp.next(tracks)
             else:
                 break
 
-        return return_tracks, data['snapshot_id']
+        if return_snapshot:
+            return return_tracks, data['snapshot_id']
+        
+        return return_tracks
+
+
+    # Get all tracks from the users library and own playlists (including sub feed).
+    def _get_all_user_tracks(self):
+        tracks = {}
+
+        self._get_user_library_tracks()
+
+        for playlist_id, playlist in self.user_playlists.items():
+            tracks = self._get_playlist_tracks(playlist['owner']['id'], playlist_id)
+            for track in tracks:
+                tracks[track.id] = track
+
+        
+
+        
+
+    def _get_user_library_tracks(self):
+        tracks = {}
+
+        data = self.sp.current_user_saved_tracks() 
+
+        while data:
+            for track in data['items']:
+                print(track['track'].keys())
+            exit(0)
+            exit(0)
+            # for playlist in playlists_data['items']:
+            #     # If we own a playlist but it's collaborative, we treat it as a followed one since we might be interested in updates.
+            #     if playlist['owner']['id'] != self.user_id or playlist['collaborative']:
+            #         self.followed_playlists[playlist['id']] = playlist
+            #     else:
+            #         self.user_playlists[playlist['id']] = playlist             
+
+            # # If there were more playlists than we just received, query the next batch
+            # if playlists_data['next']:
+            #     playlists_data = self.sp.next(playlists_data)
+            # else:
+            #     break    
+       
+
 
 
     # Store the track ids we just added to the feed in the log file.
