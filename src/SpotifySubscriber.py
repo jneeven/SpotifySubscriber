@@ -343,8 +343,6 @@ class SpotifySubscriber():
                     # TODO: correctly upgrade objects if storage consists of SubscribedPlaylists without ID list.
                     except AttributeError:
                         track_ids.append(track.id)
-                        # # Add the ID to the track ID list so we know not to add it in the future
-                        # playlist.track_ids[track.id] = datetime.utcnow()
                         added += 1
 
             if added > 0:
@@ -392,6 +390,11 @@ class SpotifySubscriber():
         while tracks:
             for track in tracks['items']:
                 added_at = track['added_at']
+
+                # Somehow, it's possible that we receive an empty track. IDK if this is a spotipy bug or what
+                if track['track'] is None:
+                    print("WARNING: encountered None track! Ignoring.")
+                    continue
                 
                 timestamp = datetime.strptime(added_at, '%Y-%m-%dT%H:%M:%SZ')
                 if timestamp > min_timestamp:                   
