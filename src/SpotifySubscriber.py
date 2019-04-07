@@ -352,6 +352,8 @@ class SpotifySubscriber():
         if len(track_ids)> 0:
             unique_ids = np.unique(track_ids)
 
+            # TODO: filter tracks that are already in the feed log.
+
             # We can add at most 100 tracks to a playlist in a single request.
             if unique_ids.size <= 100:
                 self.sp.user_playlist_add_tracks(self.user_id, self.subscription_feed.id, unique_ids)
@@ -423,10 +425,7 @@ class SpotifySubscriber():
             for track in tracks:
                 tracks[track.id] = track
 
-        
-
-        
-
+    
     def _get_user_library_tracks(self):
         tracks = {}
 
@@ -487,10 +486,19 @@ class SpotifySubscriber():
             return
         
         feed_log = pickle.load(open(self._feed_log_path, 'rb'))
-        tracks = self.sp.tracks(feed_log['track_ids'])['tracks']
+        num_tracks = len(feed_log['track_ids'])
+
+        batch_size = 50
+        tracks = []
+        start_idx = 0
+        while start_idx < num_tracks:
+            end_idx = start_idx + batch_size
+            track_ids = feed_log['track_ids'][start_idx:end_idx]
+            tracks += self.sp.tracks(track_ids)['tracks']
+            start_idx = end_idx      
 
         for track, timestamp in zip(tracks, feed_log['timestamps']):
-            print("{} - {} - {} - {}".format(track['artists'][0]['name'], track['name'],  timestamp, track['id']))
+            safe_print("{} - {} - {} - {}".format(track['artists'][0]['name'], track['name'],  timestamp, track['id']))
 
 
     # Follow a user
