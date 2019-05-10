@@ -270,7 +270,7 @@ class SpotifySubscriber():
             
             playlist = self.subscribed_playlists[playlist_id]
             removed_subscriptions = True
-            safe_print("Unsubscribed from playlist {} by {}".format(playlist['name'], playlist['owner']['id']))
+            safe_print("Unsubscribed from playlist {} by {}".format(playlist.name, playlist.owner_id))
             del self.subscribed_playlists[playlist_id]
         
         # Lowercase pattern matching with the playlist name
@@ -352,7 +352,11 @@ class SpotifySubscriber():
         if len(track_ids)> 0:
             unique_ids = np.unique(track_ids)
 
-            # TODO: filter tracks that are already in the feed log.
+            # If a feed log exists, filter all track IDs that have already been added to the feed before.
+            if os.path.exists(self._feed_log_path):       
+                feed_log = pickle.load(open(self._feed_log_path, 'rb'))
+                filtered_indices = np.where(~np.isin(unique_ids, feed_log['track_ids']))
+                unique_ids = unique_ids[filtered_indices]
 
             # We can add at most 100 tracks to a playlist in a single request.
             if unique_ids.size <= 100:
@@ -495,7 +499,7 @@ class SpotifySubscriber():
             end_idx = start_idx + batch_size
             track_ids = feed_log['track_ids'][start_idx:end_idx]
             tracks += self.sp.tracks(track_ids)['tracks']
-            start_idx = end_idx      
+            start_idx = end_idx 
 
         for track, timestamp in zip(tracks, feed_log['timestamps']):
             safe_print("{} - {} - {} - {}".format(track['artists'][0]['name'], track['name'],  timestamp, track['id']))
