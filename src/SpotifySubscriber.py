@@ -4,8 +4,9 @@ import numpy as np
 import time
 import pickle
 import json
-from datetime import datetime
 import itertools
+from datetime import datetime
+from tqdm import tqdm
 
 # Note: have built spotipy from source, because the pip version is outdated.
 from spotipy import Spotify
@@ -491,11 +492,13 @@ class SpotifySubscriber():
         
         feed_log = pickle.load(open(self._feed_log_path, 'rb'))
         num_tracks = len(feed_log['track_ids'])
+        print("Found {} tracks in log.".format(num_tracks))
 
         batch_size = 50
         tracks = []
         start_idx = 0
-        while start_idx < num_tracks:
+        print("Requesting track info...")
+        for start_idx in tqdm(range(0, num_tracks, batch_size)):
             end_idx = start_idx + batch_size
             track_ids = feed_log['track_ids'][start_idx:end_idx]
             tracks += self.sp.tracks(track_ids)['tracks']
